@@ -62,7 +62,10 @@ class Gui(tk.Tk):
         self.grid_rowconfigure(19, weight=0)
         self.grid_rowconfigure(20, weight=0)
         self.grid_rowconfigure(21, weight=0)
-        self.alts_box = tk.Entry(self)
+        self.alts_box_var = tk.StringVar()
+        self.alts_box_var.set("Select Alt")
+        # self.alts_box = tk.Entry(self)
+        self.alts_box = tk.OptionMenu(self, self.alts_box_var, [])
         self.alts_box.grid(row=10, column=0, columnspan=3, sticky='wn')
         # self.team_frame = tk.Frame(self)
         # self.team_frame.grid(row=3, column=0, rowspan=6, columnspan=3, sticky='we')
@@ -137,6 +140,8 @@ class Gui(tk.Tk):
             self.ana_btn = None
         self.after(250, self.on_tick)
 
+    def swap_for_alt(self, pkmn, alt):
+        pass ##TODO: CLICKABLE DROPDOWN FOR ALTS
     def add_on_click(self, sel=None):
         if sel:
             poke = team.add_member(sel)
@@ -187,10 +192,18 @@ class Gui(tk.Tk):
             alt_list = self.evaluator.suggest_alt(pkmn)
             self.display_alts(alt_list)
         return alt
+    # def display_alts(self, alts_list):
+    #     self.alts_box.delete(0, "end")
+    #     str_alts = ", ".join([alt.name for alt in alts_list])
+    #     self.alts_box.insert(0, str_alts)
     def display_alts(self, alts_list):
-        self.alts_box.delete(0, "end")
-        str_alts = ", ".join([alt.name for alt in alts_list])
-        self.alts_box.insert(0, str_alts)
+        str_alts = [alt.name for alt in alts_list]
+        self.alts_box_var.set("Alts found")
+        self.alts_box["menu"].delete(0, "end")
+        for item in str_alts:
+            self.alts_box["menu"].add_command(
+                label=item
+            )
 
     def display_analysis(self):
         self.analysis_frame = tk.Frame(self, background="black", padx=5, pady=5)

@@ -96,14 +96,14 @@ class Gui(tk.Tk):
         yscrollbar.config(command=self.listbox.yview)
         xscrollbar.config(command=self.listbox.xview)
 
-        def left_click(event):
+        def lb_left_click(event):
             self.listbox.selection_clear(0, tk.END)
             self.listbox.selection_set(self.listbox.nearest(event.y))
             self.listbox.activate(self.listbox.nearest(event.y))
             selection = self.listbox.get(self.listbox.curselection())
             self.add_on_click(sel=selection)
 
-        self.listbox.bind("<Button-1>", left_click)
+        self.listbox.bind("<Button-1>", lb_left_click)
 
         # The current filter. Setting it to None initially forces the first update.
         self.curr_filter = None
@@ -149,20 +149,25 @@ class Gui(tk.Tk):
             slot = slot + 4
             pkmn = tk.Label(self, text=poke.name)
             pkmn.grid(row=slot, column=0)
-            self.make_delete_button(pkmn, slot)
+            sug_btn = self.make_suggest_button(pkmn, slot)
+            self.make_delete_button(pkmn, sug_btn, slot)
 
     def make_analyze_button(self):
         ana_btn = ttk.Button(self, text="Analyze", command=self.display_analysis)
         return ana_btn
 
-    def make_delete_button(self, pkmn, slot):
+    def make_delete_button(self, pkmn, sug_btn, slot):
         del_btn = ttk.Button(self, text='Delete')
-        del_btn['command'] = self.remove_member(pkmn, del_btn, slot)
-        # del_btn.grid(row=pkmn.grid_info()['row'], column=3)
+        del_btn['command'] = self.remove_member(pkmn, del_btn, sug_btn, slot)
         del_btn.grid(row=slot, column=1, sticky="e")
         self.n_pokes += 1
+    def make_suggest_button(self, pkmn, slot):
+        sug_btn = ttk.Button(self, text='Suggest')
+        sug_btn['command'] = self.suggest_alt(pkmn)
+        sug_btn.grid(row=slot, column=2, sticky="w")
+        return sug_btn
 
-    def remove_member(self, pkmn, del_btn, slot):
+    def remove_member(self, pkmn, del_btn, sug_btn, slot):
         # Curried function that deletes the Pokemon and button itself
         def rmv():
             team.remove_member(pkmn.cget("text"))
@@ -170,11 +175,20 @@ class Gui(tk.Tk):
             # del_btn.after(10, del_btn.destroy())
             pkmn.destroy()
             del_btn.destroy()
+            sug_btn.destroy()
             self.used_slots.remove(slot - 4)
             self.all_slots.add(slot - 4)
             self.all_slots
             self.n_pokes -= 1
         return rmv
+    def suggest_alt(self, pkmn):
+        def alt():
+            alt_list = self.evaluator.suggest_alt(pkmn)
+            if alt_list:
+                return alt_list[1]
+            else:
+                return False
+        return alt
 
     def display_analysis(self):
         self.analysis_frame = tk.Frame(self, background="black", padx=5, pady=5)

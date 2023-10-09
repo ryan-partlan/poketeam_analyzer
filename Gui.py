@@ -62,7 +62,8 @@ class Gui(tk.Tk):
         self.grid_rowconfigure(19, weight=0)
         self.grid_rowconfigure(20, weight=0)
         self.grid_rowconfigure(21, weight=0)
-
+        self.alts_box = tk.Entry(self)
+        self.alts_box.grid(row=10, column=0, columnspan=3, sticky='wn')
         # self.team_frame = tk.Frame(self)
         # self.team_frame.grid(row=3, column=0, rowspan=6, columnspan=3, sticky='we')
         self.n_pokes = 0
@@ -149,7 +150,7 @@ class Gui(tk.Tk):
             slot = slot + 4
             pkmn = tk.Label(self, text=poke.name)
             pkmn.grid(row=slot, column=0)
-            sug_btn = self.make_suggest_button(pkmn, slot)
+            sug_btn = self.make_suggest_button(poke, slot)
             self.make_delete_button(pkmn, sug_btn, slot)
 
     def make_analyze_button(self):
@@ -184,11 +185,12 @@ class Gui(tk.Tk):
     def suggest_alt(self, pkmn):
         def alt():
             alt_list = self.evaluator.suggest_alt(pkmn)
-            if alt_list:
-                return alt_list[1]
-            else:
-                return False
+            self.display_alts(alt_list)
         return alt
+    def display_alts(self, alts_list):
+        self.alts_box.delete(0, "end")
+        str_alts = ", ".join([alt.name for alt in alts_list])
+        self.alts_box.insert(0, str_alts)
 
     def display_analysis(self):
         self.analysis_frame = tk.Frame(self, background="black", padx=5, pady=5)

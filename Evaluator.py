@@ -64,13 +64,15 @@ class Evaluator:
             self.suggest_alt(pkmn)
 
     def suggest_alt(self, poke):
+        alts = []
         for pkmn in self.pdex.dex_data:
             if (
                 all(poke.stat_vec < pkmn.stat_vec)
                 and poke.types == pkmn.types
                 and poke.name != pkmn.name
             ):
-                print(f"{pkmn.name} has better stats and the same typing as {poke.name}.")
+                alts.append(pkmn)
+        return alts
 
 
 # if __name__ == "__main__":
